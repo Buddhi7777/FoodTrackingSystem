@@ -1,0 +1,21 @@
+101, Ram, Present
+102, Ramu, Absent
+103, Charan, Present
+104, Ravi, Present
+105, Sita, Absent
+106, Gopi, Present
+107, Laxmi, Present
+108, Krishna, Absent
+109, Radha, Present
+110, Anil, Present
+111, Kiran, Absent
+112, Meena, Present
+113, Arjun, Present
+114, Rekha, Absent
+115, Ramesh, Present
+116, Suresh, Present
+117, Mahesh, Absent
+118, Geetha, Present
+119, Venu, Present
+120, Balu, Absent
+{}

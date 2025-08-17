@@ -1,0 +1,240 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-dark text-white">
+                <h3 class="mb-0"><i class="fas fa-lock"></i> Admin Dashboard</h3>
+            </div>
+            <div class="card-body">
+                {% if not logged_in %}
+                    <!-- Admin Login Form -->
+                    <div class="row justify-content-center">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-secondary text-white">
+                                    <h4 class="mb-0">Admin Login</h4>
+                                </div>
+                                <div class="card-body">
+                                    <form action="{{ url_for('admin_login') }}" method="POST">
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Admin Password</label>
+                                            <input type="password" class="form-control" id="password" name="password" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary">Login</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Admin Dashboard Content -->
+                    <div class="mb-4 d-flex justify-content-between align-items-center flex-wrap">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <h4 class="mb-0">Welcome, Admin!</h4>
+                            
+                            <!-- Date Selector -->
+                            {% if available_dates %}
+                            <div class="date-selector">
+                                <form action="{{ url_for('admin') }}" method="GET" class="d-flex" id="adminDateSelectForm">
+                                    <select class="form-select" id="adminDateSelect" name="date" onchange="this.form.submit()">
+                                        <option value="">All Dates</option>
+                                        {% for date in available_dates %}
+                                            <option value="{{ date }}" {% if date == current_date %}selected{% endif %}>{{ date }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            </div>
+                            {% endif %}
+                            
+                            {% if current_date %}
+                            <div class="badge bg-info text-white p-2">
+                                <i class="fas fa-calendar-day"></i> Viewing: {{ current_date }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-flex gap-2 flex-wrap">
+                            <!-- Export Buttons -->
+                            <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="exportDropdown" 
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-file-export"></i> Export Data
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="exportDropdown">
+                                    {% if current_date %}
+                                    <!-- Export for current date -->
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('export_csv', date_str=current_date) }}">
+                                            <i class="fas fa-file-csv"></i> Export {{ current_date }} as CSV
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('export_pdf', date_str=current_date) }}">
+                                            <i class="fas fa-file-pdf"></i> Export {{ current_date }} as PDF
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    {% endif %}
+                                    <!-- Export all dates -->
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('export_csv') }}">
+                                            <i class="fas fa-file-csv"></i> Export All Dates as CSV
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" href="{{ url_for('export_pdf') }}">
+                                            <i class="fas fa-file-pdf"></i> Export All Dates as PDF
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Reset Button with Dropdown -->
+                            <div class="dropdown">
+                                <button class="btn btn-danger dropdown-toggle" type="button" id="resetDropdown" 
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-trash"></i> Reset Data
+                                </button>
+                                <ul class="dropdown-menu" aria-labelledby="resetDropdown">
+                                    {% if current_date %}
+                                    <li>
+                                        <form action="{{ url_for('reset_attendance') }}" method="POST" id="resetCurrentForm">
+                                            <input type="hidden" name="reset_type" value="date">
+                                            <input type="hidden" name="date_str" value="{{ current_date }}">
+                                            <button type="button" class="dropdown-item" onclick="confirmDateReset('{{ current_date }}')">
+                                                <i class="fas fa-calendar-times"></i> Reset {{ current_date }} Only
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    {% endif %}
+                                    <li>
+                                        <form action="{{ url_for('reset_attendance') }}" method="POST" id="resetAllForm">
+                                            <input type="hidden" name="reset_type" value="all">
+                                            <button type="button" class="dropdown-item" onclick="confirmAllReset()">
+                                                <i class="fas fa-trash-alt"></i> Reset All Data
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
+                            
+                            <!-- Logout Button -->
+                            <a href="{{ url_for('admin_logout') }}" class="btn btn-secondary">
+                                <i class="fas fa-sign-out-alt"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-primary text-white">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Total Students</h5>
+                                    <h2>{{ stats.total }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Coming</h5>
+                                    <h2>{{ stats.coming }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-danger text-white">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Not Coming</h5>
+                                    <h2>{{ stats.not_coming }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Meal Count</h5>
+                                    <h2>{{ stats.breakfast + stats.lunch + stats.dinner }}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attendance Records Table -->
+                    <div class="table-responsive">
+                        <h4 class="mb-3">Attendance Records</h4>
+                        {% if attendance_data %}
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        {% if not current_date %}<th>Date</th>{% endif %}
+                                        <th>ID</th>
+                                        <th>Student Name</th>
+                                        <th>Status</th>
+                                        <th>Breakfast</th>
+                                        <th>Lunch</th>
+                                        <th>Dinner</th>
+                                        <th>Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in attendance_data %}
+                                    <tr>
+                                        {% if not current_date %}
+                                        <td>
+                                            <a href="{{ url_for('admin', date=record.date) }}" class="badge bg-info text-decoration-none">
+                                                {{ record.date }}
+                                            </a>
+                                        </td>
+                                        {% endif %}
+                                        <td>{{ record.id }}</td>
+                                        <td>{{ record.student_name }}</td>
+                                        <td>
+                                            {% if record.status == 'Coming' %}
+                                                <span class="badge bg-success">Coming</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Not Coming</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if record.meals.breakfast %}
+                                                <i class="fas fa-check text-success"></i>
+                                            {% else %}
+                                                <i class="fas fa-times text-danger"></i>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if record.meals.lunch %}
+                                                <i class="fas fa-check text-success"></i>
+                                            {% else %}
+                                                <i class="fas fa-times text-danger"></i>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if record.meals.dinner %}
+                                                <i class="fas fa-check text-success"></i>
+                                            {% else %}
+                                                <i class="fas fa-times text-danger"></i>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ record.timestamp }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="alert alert-info">
+                                No attendance records found.
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

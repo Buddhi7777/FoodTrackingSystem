@@ -1,0 +1,50 @@
+/* Custom styles for Student Attendance & Meal Tracking System */
+
+/* Card styling */
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.card-header {
+    font-weight: 500;
+}
+
+/* Stats cards */
+.bg-light {
+    background-color: var(--bs-dark-bg-subtle) !important;
+}
+
+/* Table adjustments */
+.table-responsive {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Form elements */
+.form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+
+/* Admin dashboard specific styling */
+.admin-header {
+    background-color: var(--bs-dark);
+    color: white;
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+/* Custom badges */
+.badge {
+    font-size: 0.9em;
+    padding: 0.5em 0.75em;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1rem;
+    }
+}

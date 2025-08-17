@@ -1,0 +1,137 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-primary text-white">
+                <h3 class="mb-0"><i class="fas fa-clipboard-check"></i> Attendance Form</h3>
+            </div>
+            <div class="card-body">
+                <form action="{{ url_for('submit_attendance') }}" method="POST">
+                    <div class="mb-3">
+                        <label for="student_name" class="form-label">Student Name</label>
+                        <input type="text" class="form-control" id="student_name" name="student_name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Attendance Status</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="attendance_status" id="status_coming" value="Coming" required>
+                                <label class="form-check-label" for="status_coming">
+                                    Coming
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="attendance_status" id="status_not_coming" value="Not Coming">
+                                <label class="form-check-label" for="status_not_coming">
+                                    Not Coming
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3" id="meal_options">
+                        <label class="form-label">Meal Preferences</label>
+                        <div class="d-flex flex-column gap-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="breakfast" id="breakfast">
+                                <label class="form-check-label" for="breakfast">
+                                    <i class="fas fa-coffee"></i> Breakfast
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="lunch" id="lunch">
+                                <label class="form-check-label" for="lunch">
+                                    <i class="fas fa-utensils"></i> Lunch
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="dinner" id="dinner">
+                                <label class="form-check-label" for="dinner">
+                                    <i class="fas fa-hamburger"></i> Dinner
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Submit Attendance</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h3 class="mb-0"><i class="fas fa-chart-bar"></i> Attendance Statistics</h3>
+                
+                {% if available_dates %}
+                <div class="date-selector">
+                    <form action="{{ url_for('index') }}" method="GET" class="d-flex" id="dateSelectForm">
+                        <select class="form-select" id="dateSelect" onchange="this.form.submit()">
+                            <option value="">Select Date</option>
+                            {% for date in available_dates %}
+                                <option value="{{ date }}" {% if date == current_date %}selected{% endif %}>{{ date }}</option>
+                            {% endfor %}
+                        </select>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                {% if current_date %}
+                <div class="alert alert-info">
+                    <i class="fas fa-calendar-day"></i> Viewing attendance for: <strong>{{ current_date }}</strong>
+                </div>
+                {% endif %}
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <h5>Total Students</h5>
+                            <h2 class="text-primary">{{ stats.total }}</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <h5>Coming</h5>
+                            <h2 class="text-success">{{ stats.coming }}</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="p-3 bg-light rounded">
+                            <h5>Not Coming</h5>
+                            <h2 class="text-danger">{{ stats.not_coming }}</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <h4 class="border-bottom pb-2">Meal Count (For Students Coming)</h4>
+                    <div class="row text-center">
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <h5><i class="fas fa-coffee"></i> Breakfast</h5>
+                                <h3>{{ stats.breakfast }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <h5><i class="fas fa-utensils"></i> Lunch</h5>
+                                <h3>{{ stats.lunch }}</h3>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="p-3 bg-light rounded">
+                                <h5><i class="fas fa-hamburger"></i> Dinner</h5>
+                                <h3>{{ stats.dinner }}</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
